@@ -1,8 +1,8 @@
 package begger
 
 type Error struct {
-	StatusCode int
-	Status     string
-	Message    string
-	Metadata   map[string]interface{}
+	HTTPStatusCode int
+	StatusName     string
+	Message        string
+	Metadata       map[string]interface{}
 }

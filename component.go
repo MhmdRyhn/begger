@@ -6,21 +6,27 @@ import (
 	"strings"
 )
 
+type RequestComponents struct {
+	Url        Url
+	HTTPMethod string
+	Body       []byte
+	Headers    Headers
+}
 type Url struct {
-	Actual *string
-	Parts  *UrlParts
+	Actual     *string
+	Components *UrlComponents
 }
 
 func (u *Url) Get() string {
 	if u.Actual != nil {
 		return *u.Actual
-	} else if u.Parts != nil {
-		return u.Parts.GetUrl()
+	} else if u.Components != nil {
+		return u.Components.GetUrl()
 	}
 	panic("Either the full url or the url parts must be supplied.")
 }
 
-type UrlParts struct {
+type UrlComponents struct {
 	Host        string
 	Port        *int
 	PathFormat  string
@@ -28,7 +34,7 @@ type UrlParts struct {
 	QueryParams QueryParams
 }
 
-func (u *UrlParts) GetUrl() string {
+func (u *UrlComponents) GetUrl() string {
 	url := u.Host
 	if u.Port != nil && *u.Port > 0 {
 		url += fmt.Sprintf(":%d", *u.Port)
@@ -69,3 +75,5 @@ func (p *PathParams) ActualPath(pathFormat string) string {
 	}
 	return "/" + strings.NewReplacer(oldNew...).Replace(strings.TrimLeft(pathFormat, "/"))
 }
+
+type Headers map[string]string

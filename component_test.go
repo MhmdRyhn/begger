@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUrlParts(t *testing.T) {
+func TestUrlComponents(t *testing.T) {
 	port := 443
-	parts := UrlParts{
+	parts := UrlComponents{
 		Host:        "https://example.com",
 		Port:        &port,
 		PathFormat:  "users/{UserId}",
