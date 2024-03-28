@@ -12,7 +12,16 @@ type RequestComponents struct {
 	Body       []byte
 	Headers    Headers
 }
+
+/*
+Provide either of `Actual` or `Components`. If both of these are provided,
+`Actual` gets priority.
+*/
 type Url struct {
+	/*
+		Full URL containing host, port (if not default), path parameters' actual
+		values and query string.
+	*/
 	Actual     *string
 	Components *UrlComponents
 }
