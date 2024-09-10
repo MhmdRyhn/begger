@@ -9,7 +9,7 @@ This package hehaves exactly like those beggers. It requests to some service for
 
 
 ## How To Use
-### An Example
+### Example 1
 Lets say you need to create an order for an user. Assume the following example data for requests and responses.
 
 ```go
@@ -93,7 +93,7 @@ func main() {
 }
 ```
 
-### Another example
+### Example 2
 We want to get all PENDING orders of an user. Lets use the above data structures here too.
 ```go
 func main() {
@@ -114,6 +114,46 @@ func main() {
 			Headers: begger.Headers{
 				"Api-Key": "132mrn34tb9193qnje43t5ijr",
 			},
+		},
+	}
+	resp, err2 := req.Do()
+	if err2 != nil {
+		fmt.Println(err2.Message)
+		return
+	}
+	respBody := OrderDetailsResponse{}
+	parser := begger.NewResponseParser(resp)
+	fmt.Println("Status code: ", parser.HTTPStatusCode())
+	if parser.HTTPStatusCode() == http.StatusOK {
+		parser.LoadBody(&respBody)
+		fmt.Println(fmt.Sprintf("Body: %+v", respBody))
+	}
+}
+```
+### Example 3
+Lets use some retry.
+```go
+func main() {
+    // Desired URL is: `https://my-example-shop.com/api/v1/users/1267/orders?status=PENDING`
+    urlPathFormat := "/api/v1/users/{UserId}/orders"
+	req := begger.Request{
+		Client: &http.Client{Timeout: 1 * time.Second},
+		Components: begger.RequestComponents{
+			Url: begger.Url{
+				Components: &begger.UrlComponents{
+					Host:        "https://my-example-shop.com",
+					PathFormat:  urlPathFormat,
+					PathParams:  begger.PathParams{"{UserId}": "1267"},
+					QueryParams: begger.QueryParams{"status": "PENDING"},
+				},
+			},
+			HTTPMethod: http.MethodGet,
+			Headers: begger.Headers{
+				"Api-Key": "132mrn34tb9193qnje43t5ijr",
+			},
+		},
+		Retry: &begger.RetryOptions{
+			MaxAttempt: 3, WaitInterval: 2 * time.Second,
 		},
 	}
 	resp, err2 := req.Do()

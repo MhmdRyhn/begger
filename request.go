@@ -26,9 +26,9 @@ func (r *Request) Do() (*http.Response, *Error) {
 	var waitInterval time.Duration
 	var backoffRate float64
 	if r.Retry != nil {
-		maxRetry = r.Retry.CleanMaxAttempt()
-		waitInterval = r.Retry.CleanWaitInterval()
-		backoffRate = r.Retry.CleanBackoffRate()
+		maxRetry = r.Retry.MaxAttemptValue()
+		waitInterval = r.Retry.WaitIntervalValue()
+		backoffRate = r.Retry.BackoffRateValue()
 	}
 	// if r.Log != nil {
 	// 	r.Log.Infof(

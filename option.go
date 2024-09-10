@@ -12,7 +12,7 @@ type RetryOptions struct {
 		Time to wait between two successive requests. For exponential backoff,
 		it's the wait interval in the first attempt.
 	*/
-	WaitInterval *time.Duration
+	WaitInterval time.Duration
 
 	/*
 		Exponential backoff. This value will be multiplied with the `WaitInterval`
@@ -22,21 +22,21 @@ type RetryOptions struct {
 	BackoffRate *float64
 }
 
-func (ro *RetryOptions) CleanMaxAttempt() int {
+func (ro *RetryOptions) MaxAttemptValue() int {
 	if ro.MaxAttempt < 0 {
 		return 0
 	}
 	return ro.MaxAttempt
 }
 
-func (ro *RetryOptions) CleanWaitInterval() time.Duration {
-	if ro.WaitInterval == nil {
+func (ro *RetryOptions) WaitIntervalValue() time.Duration {
+	if ro.WaitInterval < 0 {
 		return 0
 	}
-	return *ro.WaitInterval
+	return ro.WaitInterval
 }
 
-func (ro *RetryOptions) CleanBackoffRate() float64 {
+func (ro *RetryOptions) BackoffRateValue() float64 {
 	if ro.BackoffRate == nil || *ro.BackoffRate <= float64(0) {
 		return float64(1)
 	}
