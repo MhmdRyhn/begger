@@ -5,22 +5,21 @@ import (
 	"io"
 	"net/http"
 	"time"
-	// "github.com/sirupsen/logrus"
 )
 
 type Request struct {
 	Client     *http.Client
 	Components RequestComponents
 	Retry      *RetryOptions
-	// Log        *logrus.Logger
+
+	// If this is left as nil, the default is `time.Sleep` function.
+	// Otherwise, Custom implementation like time.Sleep function.
+	Sleeper Sleeper
 }
 
 // WARNING: This method is not responsible for closing the `response body`.
 func (r *Request) Do() (*http.Response, *Error) {
 	url := r.Components.Url.Get()
-	// if r.Log != nil {
-	// 	r.Log.Infof("Url: %s", url)
-	// }
 
 	var maxRetry int
 	var waitInterval time.Duration
@@ -30,12 +29,8 @@ func (r *Request) Do() (*http.Response, *Error) {
 		waitInterval = r.Retry.WaitIntervalValue()
 		backoffRate = r.Retry.BackoffRateValue()
 	}
-	// if r.Log != nil {
-	// 	r.Log.Infof(
-	// 		"Retry details -> MaxRetry: %d | WaitInterval: %d | BackoffRate: %f",
-	// 		maxRetry, waitInterval, backoffRate,
-	// 	)
-	// }
+	// One for actual request, others for retry attemps.
+	maxRetry++
 
 	var body io.Reader
 	if len(r.Components.Body) != 0 {
@@ -50,9 +45,13 @@ func (r *Request) Do() (*http.Response, *Error) {
 
 	var response *http.Response
 	waitBeforeRetry := waitInterval
-	for attempt := 0; attempt < maxRetry+1; attempt++ {
+	for attempt := 0; attempt < maxRetry; attempt++ {
 		if attempt != 0 {
-			time.Sleep(waitBeforeRetry)
+			if r.Sleeper == nil {
+				time.Sleep(waitBeforeRetry)
+			} else {
+				r.Sleeper.Sleep(waitBeforeRetry)
+			}
 		}
 		response, err = r.Client.Do(request)
 		if err == nil && response != nil {
@@ -71,4 +70,8 @@ func (r *Request) Do() (*http.Response, *Error) {
 		}
 	}
 	return response, nil
+}
+
+type Sleeper interface {
+	Sleep(d time.Duration)
 }

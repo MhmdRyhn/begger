@@ -7,18 +7,18 @@ import (
 	"net/http"
 )
 
-type responseParser struct {
+type ResponseParser struct {
 	response *http.Response
 }
 
-func NewResponseParser(response *http.Response) *responseParser {
-	return &responseParser{response: response}
+func NewResponseParser(response *http.Response) *ResponseParser {
+	return &ResponseParser{response: response}
 }
 
 //
 // If `response` is nil, this method will return "0" as status code.
 //
-func (rp *responseParser) HTTPStatusCode() int {
+func (rp *ResponseParser) HTTPStatusCode() int {
 	if rp.response == nil {
 		return 0
 	}
@@ -34,7 +34,7 @@ object and load into the "loadingObject". It is NOT responsible for closing the
 members contain "json" tag, or it can be a map object.
 =
 */
-func (rp *responseParser) LoadBody(loadingObject any) *Error {
+func (rp *ResponseParser) LoadBody(loadingObject any) *Error {
 	if rp.response == nil {
 		return &Error{
 			HTTPStatusCode: http.StatusInternalServerError,

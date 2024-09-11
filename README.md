@@ -3,7 +3,7 @@ This GoLang package facilitates to make HTTP request with retry options.
 
 
 ## Why Is It Named So?
-In Indian sub-continent, the beggers ask to people for some money or some other goods. If the people don't respond, the beggers ask for the same thing repeatedly for multiple times.
+In Bangladesh, the beggers ask to people for some money or some other goods. If the people don't respond, the beggers ask for the same thing repeatedly for multiple times.
 
 This package hehaves exactly like those beggers. It requests to some service for some data to process. If the service fails to process the request, it retries the same request.
 
@@ -83,6 +83,8 @@ func main() {
 		fmt.Println(err2.Message)
 		return
 	}
+	// Because, the package is not responsible for closing response body
+	defer resp.Body.Close()
 	respBody := CreateOrderResponse{}
 	parser := begger.NewResponseParser(resp)
 	fmt.Println("Status code: ", parser.HTTPStatusCode())
@@ -121,6 +123,8 @@ func main() {
 		fmt.Println(err2.Message)
 		return
 	}
+	// Because, the package is not responsible for closing response body
+	defer resp.Body.Close()
 	respBody := OrderDetailsResponse{}
 	parser := begger.NewResponseParser(resp)
 	fmt.Println("Status code: ", parser.HTTPStatusCode())
@@ -161,6 +165,8 @@ func main() {
 		fmt.Println(err2.Message)
 		return
 	}
+	// Because, the package is not responsible for closing response body
+	defer resp.Body.Close()
 	respBody := OrderDetailsResponse{}
 	parser := begger.NewResponseParser(resp)
 	fmt.Println("Status code: ", parser.HTTPStatusCode())
