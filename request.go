@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Request struct {
@@ -15,11 +17,17 @@ type Request struct {
 	// If this is left as nil, the default is `time.Sleep` function.
 	// Otherwise, Custom implementation like time.Sleep function.
 	Sleeper Sleeper
+
+	// Optional logger instance
+	Logger *logrus.Logger
 }
 
 // WARNING: This method is not responsible for closing the `response body`.
 func (r *Request) Do() (*http.Response, *Error) {
 	url := r.Components.Url.Get()
+	if r.Logger != nil {
+		r.Logger.Debugf("Url: %s", url)
+	}
 
 	var maxRetry int
 	var waitInterval time.Duration
@@ -47,6 +55,9 @@ func (r *Request) Do() (*http.Response, *Error) {
 	waitBeforeRetry := waitInterval
 	for attempt := 0; attempt < maxRetry; attempt++ {
 		if attempt != 0 {
+			if r.Logger != nil {
+				r.Logger.Debugf("Retry attempt: %d | Wait: %+v", attempt, waitBeforeRetry)
+			}
 			if r.Sleeper == nil {
 				time.Sleep(waitBeforeRetry)
 			} else {

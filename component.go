@@ -44,7 +44,7 @@ type UrlComponents struct {
 }
 
 func (u *UrlComponents) GetUrl() string {
-	url := u.Host
+	url := strings.TrimRight(u.Host, "/")
 	if u.Port != nil && *u.Port > 0 {
 		url += fmt.Sprintf(":%d", *u.Port)
 	}
