@@ -1,7 +1,11 @@
 package begger
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -11,6 +15,24 @@ type RequestComponents struct {
 	HTTPMethod string
 	Body       []byte
 	Headers    Headers
+}
+
+func (r *RequestComponents) GetHttpRequestObject() (*http.Request, error) {
+	url := r.Url.Get()
+	var body io.Reader
+	if len(r.Body) != 0 {
+		body = bytes.NewBuffer(r.Body)
+	} else {
+		body = nil
+	}
+	request, err := http.NewRequest(r.HTTPMethod, url, body)
+	if err != nil {
+		return nil, errors.New("Failed to create *http.Request object")
+	}
+	for key, value := range r.Headers {
+		request.Header.Set(key, value)
+	}
+	return request, nil
 }
 
 /*
@@ -68,14 +90,14 @@ func (q *QueryParams) ToEncodedString() string {
 type PathParams map[string]string
 
 /*
-	Make sure to use the path param's placeholder structure as the map key.
-	For example,
-	- If pathFormat uses {id}, then it must be PathParams{"{id}": 123}
-	- If pathFormat uses :id, then it must be PathParams{":id": 123}
+Make sure to use the path param's placeholder structure as the map key.
+For example,
+- If pathFormat uses {id}, then it must be PathParams{"{id}": 123}
+- If pathFormat uses :id, then it must be PathParams{":id": 123}
 
-	** NOTE: This method will make sure that the actual path will contain
-	a leading slash (/). For example, if the pathFormat is either "users/:id"
-	or "/users/:id", the return value will always be like "/users/123".
+** NOTE: This method will make sure that the actual path will contain
+a leading slash (/). For example, if the pathFormat is either "users/:id"
+or "/users/:id", the return value will always be like "/users/123".
 */
 func (p *PathParams) ActualPath(pathFormat string) string {
 	var oldNew []string
